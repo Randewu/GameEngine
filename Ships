@@ -1,0 +1,86 @@
+using System.Drawing;
+
+class Generate
+{
+    void Points()
+    {
+        for (int i = 0; i < 3; i++)
+        { 
+            
+        }
+    }
+}
+
+public class Clas
+{
+    public string Name;
+    public Color Color;
+    public int BonusPower;
+    public int Bonus1;
+    public int BonusRandomNumber;
+    public double GetRandom;
+}
+
+public class Rang
+{
+    public string Name;
+    public int Ranq;
+    public int Power1; // Постоянная часть силы
+    public int PowerRandomNumber; // Рандомная часть силы
+    public double GetRandom;
+}
+
+public class Ship // класс корабля
+{
+    public Clas Clas;
+    public Rang Rang;
+}
+public class Player
+{
+    public Ship[] Rezerv;
+    public Player()
+    {
+        Rezerv = new Ship[10];
+    }
+}
+public class Land // класс поля
+{
+    public Ship[] Pole;  // уникальное поле
+
+    public Land()
+    {
+        Pole = new Ship[9];// создаем 9 ячеек под корабли
+    }
+}
+
+ class Input // Вход
+{
+    public static Land Land;
+    public static Player[] Players;
+    public static void Inicialization(int countPlayers)// получаем количество игроков и инициализируем 
+    {
+        Land = new Land();
+        Players = new Player[countPlayers];
+    }
+}
+
+public class Engine // Механика
+{ 
+    
+    public static void SetShip(Ship ship, int number) // установка корабля в ячейку
+    {
+        if (Input.Land.Pole[number] == null)
+        Input.Land.Pole[number] = ship;
+    }
+    public static void GetShip(Player player, Ship ship) // возврат корабля в резерв
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (player.Rezerv[i] == null)
+            {
+                player.Rezerv[i] = ship;
+                break;
+            }
+        }
+    }
+}
