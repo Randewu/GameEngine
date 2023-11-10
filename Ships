@@ -1,13 +1,50 @@
 using System.Drawing;
 
-class Generate
+class Generate3Ships
 {
-    void Points()
-    {
-        for (int i = 0; i < 3; i++)
-        { 
-            
+    Clas[] Clases;
+    Rang[] Rangs;
+    Random rnd = new Random();
+    Random rnd2 = new Random();
+    Clas RandomClas()
+    { 
+        double chance = rnd.NextDouble();
+        if (chance < 0.8)
+        { return Clases[0]; }
+        else
+        { chance = chance - 0.8;
+            if (chance < 0.15)
+            {
+                return Clases[1];
+            }
+            else 
+            {
+                chance = chance - 0.15;
+                if (chance < 0.04)
+                {
+                    return Clases[2];
+                }
+                return Clases[3]; 
+            }
         }
+    }
+    Rang RandomRang()
+    {
+        
+            double chance2 = rnd2.NextDouble(); // получаем случайное число [0..1)
+            if (chance2 < 0.5)
+            { 
+                return Rangs[0];
+            }
+            else
+            { chance2 = chance2 - 0.5;
+                if (chance2 < 0.3)
+                {
+                   return Rangs[1];
+                }
+                return Rangs[2];
+                
+            }
     }
 }
 
