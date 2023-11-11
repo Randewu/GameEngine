@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Engines // Механики
 {
@@ -101,8 +100,8 @@ namespace Engines // Механики
         public string Name;
         public Color Color;
         public int BonusPower;
-        public int Bonus1;
-        public int BonusRandomNumber;
+        public int Bonus1; // целая часть бонуса
+        public int BonusRandomNumber; // случайная часть бонуса
     }
 
     public class Rang
@@ -188,25 +187,183 @@ namespace Engines // Механики
 
     }
 
+    public class Boss
+    {
+        public static int HP;
+        public static int HPcurrent;
+        public static int DEF;
+        public static int ATK;
+        Ship[] pole = Game.Land.Pole;
+        Random rnd = new();
+        public int AttackBoss()
+        {
+            if (HPcurrent < 0.5 * HP)
+                return (int)Math.Truncate(ATK * 0.5);
+            return ATK;
+        }
+        public double DefenceBoss()
+        {
+            if (HPcurrent < 0.2 * HP)
+                return (int)Math.Truncate(DEF * 0.5);
+            return DEF;
+        }
+        public Boss()
+        {
+            HP = rnd.Next(30, 60);
+            HPcurrent = HP;
+            DEF = rnd.Next(10, 30);
+            ATK = rnd.Next(10, 60);
+
+        }
+        public int BossLineAttack()
+        {
+            int[] maxHP = new int[3];
+            for (int i = 0; i < 3; i++)
+                maxHP[i] = 0;
+            int max = 0;
+            int k = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                maxHP[i] = pole[i].Rang.Ranq + pole[3 + i].Rang.Ranq + pole[6 + i].Rang.Ranq;
+                if (max < maxHP[i])
+                    max = maxHP[i];
+            }
+            for (int i = 0; i < 3; i++)
+                if (maxHP[i] == max)
+                    k = i;
+            return k;
+        }
+    }
+
     public class Engine // Механика
     {
+        Ship[] pole = Game.Land.Pole;
+
         public int RandomD(int random)
         {
-            int result = 0;
+            int result;
             Random rnd = new();
-            result = rnd.Next(1, random+1);
+            result = rnd.Next(1, random + 1);
             return result;
         }
-        public int Attack()
+        public int Damage()
         {
-            Ship[] pole = Game.Land.Pole;
             int power = 0;
             int[] lines = new int[5];
-            lines[0] = pole[0].Rang.Power1 + RandomD(pole[0].Rang.PowerRandomNumber);
+            for (int i = 0; i < 9; i++) // три основные атаки
+            {
+                if (pole[i] != null)
+                {
+                    int j = i % 3;
+                    lines[j] = lines[j] + pole[j].Rang.Power1 + RandomD(pole[j].Rang.PowerRandomNumber);// складывание силы
+                }
+            }
+
+            if (pole[0] != null && pole[4] != null && pole[8] != null) // первая диагональ
+            {
+                lines[3] = pole[0].Rang.Power1 + RandomD(pole[0].Rang.PowerRandomNumber);
+                lines[3] = lines[3] + pole[4].Rang.Power1 + RandomD(pole[4].Rang.PowerRandomNumber);
+                lines[3] = lines[3] + pole[9].Rang.Power1 + RandomD(pole[8].Rang.PowerRandomNumber);
+
+                if (pole[0].Rang == pole[4].Rang && pole[0].Rang == pole[8].Rang && pole[0].Clas == pole[4].Clas && pole[0].Clas == pole[8].Clas) // случай атаки (г)
+                {
+                    double d = (pole[0].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[8].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[3] = lines[3] + (int)Math.Truncate(d);
+                    lines[3] = lines[3] * (pole[0].Clas.Bonus1 + RandomD(pole[0].Clas.BonusRandomNumber));
+                }
+                else
+                if (pole[0].Rang == pole[4].Rang && pole[0].Rang == pole[8].Rang) // Случай атаки (б)
+                {
+                    double d = (pole[0].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[8].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[3] = lines[3] + (int)Math.Truncate(d);
+                }
+                else
+                    if (pole[0].Clas == pole[4].Clas && pole[0].Clas == pole[8].Clas) // Случай атаки (в)
+                {
+                    lines[3] = lines[3] * (pole[0].Clas.Bonus1 + RandomD(pole[0].Clas.BonusRandomNumber));
+                }
+
+            }// Диагональ 1 - сила
+
+            if (pole[2] != null && pole[4] != null && pole[6] != null) // вторая диагональ
+            {
+                lines[4] = pole[2].Rang.Power1 + RandomD(pole[2].Rang.PowerRandomNumber);
+                lines[4] = lines[4] + pole[4].Rang.Power1 + RandomD(pole[4].Rang.PowerRandomNumber);
+                lines[4] = lines[4] + pole[6].Rang.Power1 + RandomD(pole[6].Rang.PowerRandomNumber);
+
+                if (pole[2].Rang == pole[4].Rang && pole[2].Rang == pole[6].Rang && pole[2].Clas == pole[4].Clas && pole[2].Clas == pole[6].Clas) // случай атаки (г)
+                {
+                    double d = (pole[2].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[6].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[4] = lines[4] + (int)Math.Truncate(d);
+                    lines[4] = lines[4] * (pole[2].Clas.Bonus1 + RandomD(pole[2].Clas.BonusRandomNumber));
+                }
+                else
+                if (pole[2].Rang == pole[4].Rang && pole[2].Rang == pole[6].Rang) // Случай атаки (б)
+                {
+                    double d = (pole[2].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[6].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[4] = lines[4] + (int)Math.Truncate(d);
+                }
+                else
+                    if (pole[2].Clas == pole[4].Clas && pole[2].Clas == pole[6].Clas) // Случай атаки (в)
+                {
+                    lines[4] = lines[4] * (pole[2].Clas.Bonus1 + RandomD(pole[2].Clas.BonusRandomNumber));
+                }
+
+            }// Диагональ 2 - сила
+
+            for (int i = 0; i < 3; i++) // наложение бонуса силы на три первые вертикальные ряды атаки
+            {
+                int ii = 3 + i;// замена индекса 
+                int iii = 6 + i;// замена индекса 
+                if (pole[i] != null && pole[ii] != null && pole[iii] != null)
+                {
+
+                    if (pole[i].Rang == pole[ii].Rang && pole[i].Rang == pole[iii].Rang && pole[i].Clas == pole[ii].Clas && pole[i].Clas == pole[iii].Clas) // случай атаки (г)
+                    {
+                        double d = (pole[i].Rang.PowerRandomNumber + pole[ii].Rang.PowerRandomNumber + pole[iii].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                        lines[i] = lines[i] + (int)Math.Truncate(d);
+                        lines[i] = lines[i] * (pole[i].Clas.Bonus1 + RandomD(pole[i].Clas.BonusRandomNumber));
+                    }
+                    else
+                        if (pole[i].Rang == pole[ii].Rang && pole[i].Rang == pole[iii].Rang) // Случай атаки (б)
+                    {
+                        double d = (pole[i].Rang.PowerRandomNumber + pole[ii].Rang.PowerRandomNumber + pole[iii].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                        lines[i] = lines[i] + (int)Math.Truncate(d);
+                    }
+                    else
+                        if (pole[i].Clas == pole[ii].Clas && pole[i].Clas == pole[iii].Clas) // Случай атаки (в)
+                    {
+                        lines[i] = lines[i] * (pole[i].Clas.Bonus1 + RandomD(pole[i].Clas.BonusRandomNumber));
+                    }
+
+                }
+            }// Три вертикальные атаки - сила
+            for (int i = 0; i < 5; i++) // складывание силы
+            {
+                power = power + lines[i];
+            }
             return power;
         }
+        public int AttackOnBoss()
+        {
+            int damage = Damage();
+            int defence = Boss.DEF;
+            int hp = Boss.HPcurrent;
+            if (damage - defence > 0)
+            {
+                Boss.HPcurrent = hp - (damage - defence);
+            }
+            if (damage - defence - hp >= 0)
+            {
+                Console.WriteLine("Victory!");
+            }
+            else
+                Console.WriteLine("No kill the boss");
+            return damage - defence - hp;
+        }
 
-        public static void SetShip(Ship ship, int number) // установка корабля "ship" в ячейку number
+
+        public static void SetShip(Ship ship, int number) // установка корабля "ship" в ячейку "number"
         {
 
             if (Game.Land.Pole[number] == null)
