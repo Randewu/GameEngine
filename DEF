@@ -1,0 +1,171 @@
+public void Def(int way,int Dmg){
+                Ship[] Left = new Ship[3]{Pole[0],Pole[3],Pole[6]};
+                Ship[] Center = new Ship[3]{Pole[1],Pole[4],Pole[7]};
+                Ship[] Right= new Ship[3]{Pole[2],Pole[5],Pole[8]};
+                if (way==0){
+                    for (int i =0;i<Left.Length;i++){
+                        
+                        if (Left[i] == null)
+                            continue;
+                        else{
+                                int totalRzist = 0;
+                                string[] othorShips = new string[2]{Center[i].Rang.ToString() + Center[i].Clas, Right[i].Rang.ToString()+ Right[i].Clas};
+                                if (Left[i].Rang.ToString() + Left[i].Clas == othorShips[0]&&Left[i].Rang.ToString() + Left[i].Clas == othorShips[1]){
+                                    totalRzist += (3*(Left[i].Rang.Power1+Left[i].Rang.PowerRandomNumber))*(Left[i].Clas.Bonus1+RandomD(Left[i].Clas.BonusRandomNumber));
+                                    if (totalRzist <= Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                    else{
+                                        if (Dmg-totalRzist>= Left[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Left[i].Rang.Ranq;}
+                                        else{Left[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}}
+                                }
+                                else if (Left[i].Clas == Center[i].Clas && Left[i].Clas == Right[i].Clas){
+                                    totalRzist += (Left[i].Clas.Bonus1+RandomD(Left[i].Clas.BonusRandomNumber))*(Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1));
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                    else{
+                                        if (Dmg-totalRzist>= Left[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Left[i].Rang.Ranq;}
+                                        else{Left[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                    }
+                                }
+                                        // добавить резульат
+                                else if (Left[i].Rang.Name == Center[i].Rang.Name && Left[i].Rang.Name == Right[i].Rang.Name){
+                                    int maxPwer = Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1);
+                                    totalRzist += maxPwer + maxPwer/2;
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                        // добавить резульат
+                                }
+                                else{
+                                    totalRzist = Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1);
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                        // добавить резульат
+                                    else{
+                                        if (Dmg-totalRzist>= Left[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Left[i].Rang.Ranq;}
+                                        else{Left[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                    }
+                                }
+                            }
+                        }
+                            
+                    }
+                    if (way==1){
+                        for (int i =0;i<Center.Length;i++){
+                            if (Center[i] == null)
+                                continue;
+                            else{
+                                    int totalRzist = 0;
+                                    string[] othorShips = new string[2]{Left[i].Rang.ToString() + Left[i].Clas, Right[i].Rang.ToString()+ Right[i].Clas};
+                                    if (Center[i].Rang.ToString() + Center[i].Clas == othorShips[0]&&Center[i].Rang.ToString() + Center[i].Clas == othorShips[1]){
+                                        totalRzist += (3*(Center[i].Rang.Power1+Center[i].Rang.PowerRandomNumber))*(Center[i].Clas.Bonus1+RandomD(Center[i].Clas.BonusRandomNumber));
+                                        if (totalRzist <= Dmg)
+                                            {Console.WriteLine("Не пробил!");
+                                            totalRzist =0;
+                                            break;}
+                                        else{
+                                            if (Dmg-totalRzist>= Center[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Center[i].Rang.Ranq;}
+                                            else{Center[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}}
+                                    }
+                                    else if (Center[i].Clas == Left[i].Clas && Center[i].Clas == Right[i].Clas){
+                                        totalRzist += (Center[i].Clas.Bonus1+RandomD(Center[i].Clas.BonusRandomNumber))*(Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1));
+                                        if (totalRzist < Dmg)
+                                            {Console.WriteLine("Не пробил!");
+                                            totalRzist =0;
+                                            break;}
+                                        else{
+                                            if (Dmg-totalRzist>= Center[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Center[i].Rang.Ranq;}
+                                            else{Center[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                        }
+                                    }
+                                            // добавить резульат
+                                    else if (Center[i].Rang.Name == Left[i].Rang.Name && Center[i].Rang.Name == Right[i].Rang.Name){
+                                        int maxPwer = Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1);
+                                        totalRzist += maxPwer + maxPwer/2;
+                                        if (totalRzist < Dmg)
+                                            {Console.WriteLine("Не пробил!");
+                                            totalRzist =0;
+                                            break;}
+                                            // добавить резульат
+                                    }
+                                    else{
+                                        totalRzist = Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1);
+                                        if (totalRzist < Dmg)
+                                            {Console.WriteLine("Не пробил!");
+                                            totalRzist =0;
+                                            break;}
+                                            // добавить резульат
+                                        else{
+                                            if (Dmg-totalRzist>= Center[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Center[i].Rang.Ranq;}
+                                            else{Center[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                        }
+                                    }
+                                }
+                            }
+                    
+                    }
+                if (way==2){
+                    for (int i =0;i<Right.Length;i++){
+                        if (Center[i] == null)
+                            continue;
+                        else{
+                                int totalRzist = 0;
+                                string[] othorShips = new string[2]{Left[i].Rang.ToString() + Left[i].Clas, Center[i].Rang.ToString()+ Center[i].Clas};
+                                if (Right[i].Rang.ToString() + Right[i].Clas == othorShips[0]&&Right[i].Rang.ToString() + Right[i].Clas == othorShips[1]){
+                                    totalRzist += (3*(Right[i].Rang.Power1+Right[i].Rang.PowerRandomNumber))*(Right[i].Clas.Bonus1+RandomD(Right[i].Clas.BonusRandomNumber));
+                                    if (totalRzist <= Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                    else{
+                                        if (Dmg-totalRzist>= Right[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Right[i].Rang.Ranq;}
+                                        else{Right[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}}
+                                }
+                                else if (Right[i].Clas == Left[i].Clas && Right[i].Clas == Center[i].Clas){
+                                    totalRzist += (Right[i].Clas.Bonus1+RandomD(Right[i].Clas.BonusRandomNumber))*(Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1));
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                    else{
+                                        if (Dmg-totalRzist>= Right[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Right[i].Rang.Ranq;}
+                                        else{Right[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                    }
+                                }
+                                        // добавить резульат
+                                else if (Right[i].Rang.Name == Left[i].Rang.Name && Right[i].Rang.Name == Center[i].Rang.Name){
+                                    int maxPwer = Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1);
+                                    totalRzist += maxPwer + maxPwer/2;
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                        // добавить резульат
+                                }
+                                else{
+                                    totalRzist = Right[i].Rang.Power1+RandomD(Right[i].Rang.Power1)+Left[i].Rang.Power1+RandomD(Left[i].Rang.Power1)+Center[i].Rang.Power1+RandomD(Center[i].Rang.Power1);
+                                    if (totalRzist < Dmg)
+                                        {Console.WriteLine("Не пробил!");
+                                        totalRzist =0;
+                                        break;}
+                                        // добавить резульат
+                                    else{
+                                        if (Dmg-totalRzist>= Right[i].Rang.Ranq){Console.WriteLine("Корабиль уничтожен!"); Dmg-= totalRzist+Right[i].Rang.Ranq;}
+                                        else{Right[i].Rang.Ranq-=Dmg; Console.WriteLine("Атака закончена!"); break;}
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
+                }
+            }
