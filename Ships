@@ -1,3 +1,6 @@
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Drawing;
 
 class Generate
@@ -13,27 +16,87 @@ class Generate
 
 public class Clas
 {
-    public string Name;
-    public Color Color;
-    public int BonusPower;
-    public int Bonus1;
-    public int BonusRandomNumber;
-    public double GetRandom;
+    public Dictionary<string, string> Classes= new Dictionary<string, string>(){
+        {"Кварц", "Белый 0 0 0"},
+        {"Гелиодор", "Жёлтый 2 2 0"},
+        {"Сапфир", "Синий 5 2 3"},
+        {"Рубин", "Красный 10 6 4"}
+    }; 
+    public Clas(string Class)
+    {
+        string[] data = Classes[Class].Split(' ');// получение данных по классу из словаря
+        this.Name = Class;
+        this.Color = data[0];
+        this.BonusPower = Convert.ToInt16(data[1]);
+        this.constBonus =Convert.ToInt16(data[2]);
+        this.RandBon = Convert.ToInt16(data[3]);
+    }
+    public string Name { set; get; }
+    public string Color{ set; get; }// public Color Color; пока на тест так, потом цвета подключим
+    public int BonusPower { set; get; }
+    public int constBonus { set; get; } // статичный коэфицент бонуса
+    public int RandBon { set; get; } //коэфицинт случайого кубика
+    // public double GetRandom; пока хз как реализовать 
+   
+    public int CalcBonusClass()
+    {
+        Random rnd = new Random();
+        if (RandBon!=0)
+            return constBonus + (int)(rnd.NextInt64(1, RandBon+1));
+        else
+            return constBonus;
+    }
+    public string Info(){
+        return string.Format("Класс: {0}\nЦвет: {1}\nБонус к силе: {2}\nСлучайный бонус: {3}\n", this.Name, this.Color,this.BonusPower,this.CalcBonusClass());
+    }
 }
-
 public class Rang
 {
-    public string Name;
-    public int Ranq;
-    public int Power1; // Постоянная часть силы
-    public int PowerRandomNumber; // Рандомная часть силы
-    public double GetRandom;
+    public Dictionary<string, string> Rangs= new Dictionary<string, string>(){
+        {"Корвет", "1 1 0"},
+        {"Фрегат", "2 0 2"},
+        {"Эсминец", "3 0 3"},
+        {"Крейсер", "5 2 3"},
+        {"Дредноут", "10 5 5"}
+    }; 
+    public Rang(string Rang)
+    {
+        string[] info = Rangs[Rang].Split(' ');// получение данных по рангу из словаря
+        this.Name = Rang;
+        this.Ranq =Convert.ToInt16(info[0]);
+        this.PowerConst =Convert.ToInt16(info[1]);
+        this.PowerRandom =Convert.ToInt16(info[2]);
+    }
+    public string Name { set; get; }
+    public int Ranq { set; get; }
+    public int PowerConst { set; get; } // Постоянная часть силы
+    public int PowerRandom { set; get; } // Рандомная часть силы
+    // public double GetRandom; пока тоже хз с реализацией
+    
+    public int CalcBonusRang()
+    {
+        Random rnd = new Random();
+        if (PowerRandom !=0)
+            return PowerConst + (int)(rnd.NextInt64(1, PowerRandom+1));
+        else
+            return PowerConst;
+    }
+    public string Info(){
+        return string.Format("Название: {0}\nРанг: {1}\nСила: {2}\n", this.Name, this.Ranq,this.CalcBonusRang());
+    }
 }
-
 public class Ship // класс корабля
 {
     public Clas Clas;
     public Rang Rang;
+    public Ship(string Class_Rang)
+    {
+        Clas = new Clas(Class_Rang.Split('_')[0]);
+        Rang = new Rang(Class_Rang.Split('_')[1]);
+    }
+    public void info(){
+        Console.WriteLine(Clas.Info()+ Rang.Info());
+    }
 }
 public class Player
 {
