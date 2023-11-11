@@ -1,0 +1,227 @@
+using System.Drawing;
+using System.Security.Cryptography.X509Certificates;
+
+namespace Engines // Механики
+{
+    class GenerateShips
+    {
+        Clas[] Clases;
+        Rang[] Rangs;
+        Random rnd = new();
+        Random rnd2 = new();
+        Clas RandomClas() // Рандомим класс
+        {
+            double chance = rnd.NextDouble();
+            if (chance < 0.8)
+            { return Clases[0]; }
+            else
+            {
+                chance = chance - 0.8;
+                if (chance < 0.15)
+                {
+                    return Clases[1];
+                }
+                else
+                {
+                    chance = chance - 0.15;
+                    if (chance < 0.04)
+                    {
+                        return Clases[2];
+                    }
+                    return Clases[3];
+                }
+            }
+        }
+        Rang RandomRang() // Рандомим ранг
+        {
+
+            double chance2 = rnd2.NextDouble(); // получаем случайное число [0..1)
+            if (chance2 < 0.5)
+            {
+                return Rangs[0];
+            }
+            else
+            {
+                chance2 = chance2 - 0.5;
+                if (chance2 < 0.3)
+                {
+                    return Rangs[1];
+                }
+                return Rangs[2];
+
+            }
+        }
+        public GenerateShips() // Генерация кораблей
+        {
+            Clases = new Clas[4];
+            Rangs = new Rang[5];
+
+            string[] nameClases = { "Кварц", "Гелиодор", "Сапфир", "Рубин" };
+            Color[] colors = { Color.White, Color.Yellow, Color.Blue, Color.Red };
+            int[] bonusPower = { 1, 2, 5, 10 };
+            int[] bonusPClas = { 1, 2, 2, 6 };
+            int[] bonusRNClas = { 0, 0, 3, 4 };
+
+            string[] nameRang = { "Корвет", "Фрегат", "Эсминец", "Крейсер", "Дредноут" };
+            int[] ranq = { 1, 2, 3, 5, 10 };
+            int[] powerPRang = { 1, 0, 0, 2, 5 };
+            int[] powerRNRang = { 0, 2, 3, 3, 5 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                Clases[i].Name = nameClases[i];
+                Clases[i].Color = colors[i];
+                Clases[i].BonusPower = bonusPower[i];
+                Clases[i].Bonus1 = bonusPClas[i];
+                Clases[i].BonusRandomNumber = bonusRNClas[i];
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                Rangs[i].Name = nameRang[i];
+                Rangs[i].Ranq = ranq[i];
+                Rangs[i].Power1 = powerPRang[i];
+                Rangs[i].PowerRandomNumber = powerRNRang[i];
+            }
+
+
+        }
+
+        public Ship GenerateShip()
+        {
+            Ship ship = new Ship();
+            ship.Clas = RandomClas();
+            ship.Rang = RandomRang();
+            return ship;
+        }
+
+    }
+
+    public class Clas
+    {
+        public string Name;
+        public Color Color;
+        public int BonusPower;
+        public int Bonus1;
+        public int BonusRandomNumber;
+    }
+
+    public class Rang
+    {
+        public string Name;
+        public int Ranq;
+        public int Power1; // Постоянная часть силы
+        public int PowerRandomNumber; // Рандомная часть силы
+    }
+
+    public class Ship // класс корабля
+    {
+        public Clas Clas;
+        public Rang Rang;
+
+        public Ship()
+        {
+            Clas = new Clas();
+            Rang = new Rang();
+        }
+    }
+    public class Player
+    {
+        public Ship[] Rezerv;
+        public Player()
+        {
+            Rezerv = new Ship[11];
+        }
+    }
+    public class Land // класс поля
+    {
+        public Ship[] Pole;  // уникальное поле
+
+        public Land()
+        {
+            Pole = new Ship[9];// создаем 9 ячеек под корабли
+        }
+    }
+    public class Game // Игра
+    {
+        public static Land Land;
+        public static Player[] Players;
+        public static int CountPlayers;
+        static GenerateShips Generate;
+        public void Inicialization()// Инициализируем 
+        {
+            Console.WriteLine("Input count of players");
+            CountPlayers = int.Parse(Console.ReadLine());
+            Land = new Land();
+            Players = new Player[CountPlayers];
+            Generate = new GenerateShips();
+            Create3Ships();
+
+        }
+
+        public void Output()
+        {
+            Console.WriteLine("Game over!");
+            CreateShip();// Выполняется в конце игры, независимо от результата
+        }
+
+        void Create3Ships() // Генерация кораблей: 3 штуки, если их у игрока вообще нет 
+        {
+            for (int i = 0; i < CountPlayers; i++)
+            {
+                if (Players[i].Rezerv == null)
+                {
+                    for (int j = 0; j < 3; j++)
+                        Players[i].Rezerv[j] = Generate.GenerateShip();
+                }
+            }
+        }
+        void CreateShip() // Генерация одного корабля
+        {
+            for (int i = 0; i < CountPlayers; i++)
+                for (int k = 0; k < 11; k++)
+                    if (Players[i].Rezerv[k] == null)
+                    {
+                        Players[i].Rezerv[k] = Generate.GenerateShip();
+                        break;
+                    }
+        }
+
+    }
+
+    public class Engine // Механика
+    {
+        public int RandomD(int random)
+        {
+            int result = 0;
+            Random rnd = new();
+            result = rnd.Next(1, random+1);
+            return result;
+        }
+        public int Attack()
+        {
+            Ship[] pole = Game.Land.Pole;
+            int power = 0;
+            int[] lines = new int[5];
+            lines[0] = pole[0].Rang.Power1 + RandomD(pole[0].Rang.PowerRandomNumber);
+            return power;
+        }
+
+        public static void SetShip(Ship ship, int number) // установка корабля "ship" в ячейку number
+        {
+
+            if (Game.Land.Pole[number] == null)
+                Game.Land.Pole[number] = ship;
+        }
+        public static void GetShip(Player player, Ship ship) // возврат корабля "ship" в резерв "player"
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                if (player.Rezerv[i] == null)
+                {
+                    player.Rezerv[i] = ship;
+                    break;
+                }
+            }
+        }
+    }
+}
