@@ -1,0 +1,613 @@
+using System.Drawing;
+
+namespace Engines // Механики
+{
+    class GenerateShips
+    {
+        Clas[] Clases;
+        Rang[] Rangs;
+        Random rnd = new();
+        Random rnd2 = new();
+        Clas RandomClas() // Рандомим класс
+        {
+            double chance = rnd.NextDouble();
+            if (chance < 0.8)
+            { return Clases[0]; }
+            else
+            {
+                chance = chance - 0.8;
+                if (chance < 0.15)
+                {
+                    return Clases[1];
+                }
+                else
+                {
+                    chance = chance - 0.15;
+                    if (chance < 0.04)
+                    {
+                        return Clases[2];
+                    }
+                    return Clases[3];
+                }
+            }
+        }
+        Rang RandomRang() // Рандомим ранг
+        {
+
+            double chance2 = rnd2.NextDouble(); // получаем случайное число [0..1)
+            if (chance2 < 0.5)
+            {
+                return Rangs[0];
+            }
+            else
+            {
+                chance2 = chance2 - 0.5;
+                if (chance2 < 0.3)
+                {
+                    return Rangs[1];
+                }
+                return Rangs[2];
+
+            }
+        }
+        public GenerateShips() // Генерация кораблей
+        {
+            Clases = new Clas[4];
+            Rangs = new Rang[5];
+
+            string[] nameClases = { "Кварц", "Гелиодор", "Сапфир", "Рубин" };
+            Color[] colors = { Color.White, Color.Yellow, Color.Blue, Color.Red };
+            int[] bonusPower = { 1, 2, 5, 10 };
+            int[] bonusPClas = { 1, 2, 2, 6 };
+            int[] bonusRNClas = { 0, 0, 3, 4 };
+
+            string[] nameRang = { "Корвет", "Фрегат", "Эсминец", "Крейсер", "Дредноут" };
+            int[] ranq = { 1, 2, 3, 5, 10 };
+            int[] powerPRang = { 1, 0, 0, 2, 5 };
+            int[] powerRNRang = { 0, 2, 3, 3, 5 };
+
+            for (int i = 0; i < 4; i++)
+            {
+                Clases[i].Name = nameClases[i];
+                Clases[i].Color = colors[i];
+                Clases[i].BonusPower = bonusPower[i];
+                Clases[i].Bonus1 = bonusPClas[i];
+                Clases[i].BonusRandomNumber = bonusRNClas[i];
+            }
+            for (int i = 0; i < 5; i++)
+            {
+                Rangs[i].Name = nameRang[i];
+                Rangs[i].Ranq = ranq[i];
+                Rangs[i].Power1 = powerPRang[i];
+                Rangs[i].PowerRandomNumber = powerRNRang[i];
+            }
+
+
+        }
+
+        public Ship GenerateShip()
+        {
+            Ship ship = new Ship();
+            ship.Clas = RandomClas();
+            ship.Rang = RandomRang();
+            return ship;
+        }
+
+    }
+
+    public class Clas
+    {
+        public string Name;
+        public Color Color;
+        public int BonusPower;
+        public int Bonus1; // целая часть бонуса
+        public int BonusRandomNumber; // случайная часть бонуса
+    }
+
+    public class Rang
+    {
+        public string Name;
+        public int Ranq;
+        public int Power1; // Постоянная часть силы
+        public int PowerRandomNumber; // Рандомная часть силы
+    }
+
+    public class Ship // класс корабля
+    {
+        public Clas Clas;
+        public Rang Rang;
+
+        public Ship()
+        {
+            Clas = new Clas();
+            Rang = new Rang();
+        }
+    }
+    public class Player
+    {
+        public Ship[] Rezerv;
+        public Player()
+        {
+            Rezerv = new Ship[11];
+        }
+    }
+    public class Land // класс поля
+    {
+        public Ship[] Pole;  // уникальное поле
+
+        public Land()
+        {
+            Pole = new Ship[9];// создаем 9 ячеек под корабли
+        }
+    }
+    public class Game // Игра
+    {
+        public static Land Land;
+        public static Player[] Players;
+        public static int CountPlayers;
+        static GenerateShips Generate;
+        public void Inicialization()// Инициализируем 
+        {
+            Console.WriteLine("Input count of players");
+            CountPlayers = int.Parse(Console.ReadLine());
+            Land = new Land();
+            Players = new Player[CountPlayers];
+            Generate = new GenerateShips();
+            Create3Ships();
+
+        }
+
+        public void Output()
+        {
+            Console.WriteLine("Game over!");
+            CreateShip();// Выполняется в конце игры, независимо от результата
+        }
+
+        void Create3Ships() // Генерация кораблей: 3 штуки, если их у игрока вообще нет 
+        {
+            for (int i = 0; i < CountPlayers; i++)
+            {
+                if (Players[i].Rezerv == null)
+                {
+                    for (int j = 0; j < 3; j++)
+                        Players[i].Rezerv[j] = Generate.GenerateShip();
+                }
+            }
+        }
+        void CreateShip() // Генерация одного корабля
+        {
+            for (int i = 0; i < CountPlayers; i++)
+                for (int k = 0; k < 11; k++)
+                    if (Players[i].Rezerv[k] == null)
+                    {
+                        Players[i].Rezerv[k] = Generate.GenerateShip();
+                        break;
+                    }
+        }
+
+    }
+
+    public class Boss
+    {
+        public static int HP;
+        public static int HPcurrent;
+        public static int DEF;
+        public static int ATK;
+        Ship[] pole = Game.Land.Pole;
+        Random rnd = new();
+        public int AttackBoss()
+        {
+            if (HPcurrent < 0.5 * HP)
+                return (int)Math.Truncate(ATK * 0.5);
+            return ATK;
+        }
+        public double DefenceBoss()
+        {
+            if (HPcurrent < 0.2 * HP)
+                return (int)Math.Truncate(DEF * 0.5);
+            return DEF;
+        }
+        public Boss()
+        {
+            HP = rnd.Next(30, 60);
+            HPcurrent = HP;
+            DEF = rnd.Next(10, 30);
+            ATK = rnd.Next(10, 60);
+
+        }
+        public int BossLineAttack()
+        {
+            int[] maxHP = new int[3];
+            for (int i = 0; i < 3; i++)
+                maxHP[i] = 0;
+            int max = 0;
+            int k = 0;
+            for (int i = 0; i < 3; i++)
+            {
+                maxHP[i] = pole[i].Rang.Ranq + pole[3 + i].Rang.Ranq + pole[6 + i].Rang.Ranq;
+                if (max < maxHP[i])
+                    max = maxHP[i];
+            }
+            for (int i = 0; i < 3; i++)
+                if (maxHP[i] == max)
+                    k = i;
+            return k;
+        }
+    }
+
+    public class Engine // Механика
+    {
+        Ship[] pole = Game.Land.Pole;
+
+        public int RandomD(int random)
+        {
+            int result;
+            Random rnd = new();
+            result = rnd.Next(1, random + 1);
+            return result;
+        }
+
+        public void Def(int wayDmg, int DmgBoss)
+        {
+            Ship[] Left = new Ship[3] { pole[0], pole[3], pole[6] };
+            Ship[] Center = new Ship[3] { pole[1], pole[4], pole[7] };
+            Ship[] Right = new Ship[3] { pole[2], pole[5], pole[8] };
+            if (wayDmg == 0)
+            {
+                for (int i = 0; i < Left.Length; i++)
+                {
+
+                    if (Left[i] == null)
+                        continue;
+                    else
+                    {
+                        int totalRzist = 0;
+                        string[] othorShips = new string[2] { Center[i].Rang.ToString() + Center[i].Clas, Right[i].Rang.ToString() + Right[i].Clas };
+                        if (Left[i].Rang.ToString() + Left[i].Clas == othorShips[0] && Left[i].Rang.ToString() + Left[i].Clas == othorShips[1])
+                        {
+                            totalRzist += (3 * (Left[i].Rang.Power1 + Left[i].Rang.PowerRandomNumber)) * (Left[i].Clas.Bonus1 + RandomD(Left[i].Clas.BonusRandomNumber));
+                            if (totalRzist <= DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Left[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Left[i].Rang.Ranq; }
+                                else { Left[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        else if (Left[i].Clas == Center[i].Clas && Left[i].Clas == Right[i].Clas)
+                        {
+                            totalRzist += (Left[i].Clas.Bonus1 + RandomD(Left[i].Clas.BonusRandomNumber)) * (Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1));
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Left[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Left[i].Rang.Ranq; }
+                                else { Left[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        // добавить резульат
+                        else if (Left[i].Rang.Name == Center[i].Rang.Name && Left[i].Rang.Name == Right[i].Rang.Name)
+                        {
+                            int maxPwer = Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1);
+                            totalRzist += maxPwer + maxPwer / 2;
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                        }
+                        else
+                        {
+                            totalRzist = Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1);
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Left[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Left[i].Rang.Ranq; }
+                                else { Left[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                    }
+                }
+
+            }
+            if (wayDmg == 1)
+            {
+                for (int i = 0; i < Center.Length; i++)
+                {
+                    if (Center[i] == null)
+                        continue;
+                    else
+                    {
+                        int totalRzist = 0;
+                        string[] othorShips = new string[2] { Left[i].Rang.ToString() + Left[i].Clas, Right[i].Rang.ToString() + Right[i].Clas };
+                        if (Center[i].Rang.ToString() + Center[i].Clas == othorShips[0] && Center[i].Rang.ToString() + Center[i].Clas == othorShips[1])
+                        {
+                            totalRzist += (3 * (Center[i].Rang.Power1 + Center[i].Rang.PowerRandomNumber)) * (Center[i].Clas.Bonus1 + RandomD(Center[i].Clas.BonusRandomNumber));
+                            if (totalRzist <= DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Center[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Center[i].Rang.Ranq; }
+                                else { Center[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        else if (Center[i].Clas == Left[i].Clas && Center[i].Clas == Right[i].Clas)
+                        {
+                            totalRzist += (Center[i].Clas.Bonus1 + RandomD(Center[i].Clas.BonusRandomNumber)) * (Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1));
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Center[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Center[i].Rang.Ranq; }
+                                else { Center[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        // добавить резульат
+                        else if (Center[i].Rang.Name == Left[i].Rang.Name && Center[i].Rang.Name == Right[i].Rang.Name)
+                        {
+                            int maxPwer = Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1);
+                            totalRzist += maxPwer + maxPwer / 2;
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                        }
+                        else
+                        {
+                            totalRzist = Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1);
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Center[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Center[i].Rang.Ranq; }
+                                else { Center[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                    }
+                }
+
+            }
+            if (wayDmg == 2)
+            {
+                for (int i = 0; i < Right.Length; i++)
+                {
+                    if (Center[i] == null)
+                        continue;
+                    else
+                    {
+                        int totalRzist = 0;
+                        string[] othorShips = new string[2] { Left[i].Rang.ToString() + Left[i].Clas, Center[i].Rang.ToString() + Center[i].Clas };
+                        if (Right[i].Rang.ToString() + Right[i].Clas == othorShips[0] && Right[i].Rang.ToString() + Right[i].Clas == othorShips[1])
+                        {
+                            totalRzist += (3 * (Right[i].Rang.Power1 + Right[i].Rang.PowerRandomNumber)) * (Right[i].Clas.Bonus1 + RandomD(Right[i].Clas.BonusRandomNumber));
+                            if (totalRzist <= DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Right[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Right[i].Rang.Ranq; }
+                                else { Right[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        else if (Right[i].Clas == Left[i].Clas && Right[i].Clas == Center[i].Clas)
+                        {
+                            totalRzist += (Right[i].Clas.Bonus1 + RandomD(Right[i].Clas.BonusRandomNumber)) * (Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1));
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Right[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Right[i].Rang.Ranq; }
+                                else { Right[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                        // добавить резульат
+                        else if (Right[i].Rang.Name == Left[i].Rang.Name && Right[i].Rang.Name == Center[i].Rang.Name)
+                        {
+                            int maxPwer = Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1);
+                            totalRzist += maxPwer + maxPwer / 2;
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                        }
+                        else
+                        {
+                            totalRzist = Right[i].Rang.Power1 + RandomD(Right[i].Rang.Power1) + Left[i].Rang.Power1 + RandomD(Left[i].Rang.Power1) + Center[i].Rang.Power1 + RandomD(Center[i].Rang.Power1);
+                            if (totalRzist < DmgBoss)
+                            {
+                                Console.WriteLine("Не пробил!");
+                                totalRzist = 0;
+                                break;
+                            }
+                            // добавить резульат
+                            else
+                            {
+                                if (DmgBoss - totalRzist >= Right[i].Rang.Ranq) { Console.WriteLine("Корабиль уничтожен!"); DmgBoss -= totalRzist + Right[i].Rang.Ranq; }
+                                else { Right[i].Rang.Ranq -= DmgBoss; Console.WriteLine("Атака закончена!"); break; }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+        }
+    public int Damage()
+        {
+            int power = 0;
+            int[] lines = new int[5];
+            for (int i = 0; i < 9; i++) // три основные атаки
+            {
+                if (pole[i] != null)
+                {
+                    int j = i % 3;
+                    lines[j] = lines[j] + pole[j].Rang.Power1 + RandomD(pole[j].Rang.PowerRandomNumber);// складывание силы
+                }
+            }
+
+            if (pole[0] != null && pole[4] != null && pole[8] != null) // первая диагональ
+            {
+                lines[3] = pole[0].Rang.Power1 + RandomD(pole[0].Rang.PowerRandomNumber);
+                lines[3] = lines[3] + pole[4].Rang.Power1 + RandomD(pole[4].Rang.PowerRandomNumber);
+                lines[3] = lines[3] + pole[9].Rang.Power1 + RandomD(pole[8].Rang.PowerRandomNumber);
+
+                if (pole[0].Rang == pole[4].Rang && pole[0].Rang == pole[8].Rang && pole[0].Clas == pole[4].Clas && pole[0].Clas == pole[8].Clas) // случай атаки (г)
+                {
+                    double d = (pole[0].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[8].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[3] = lines[3] + (int)Math.Truncate(d);
+                    lines[3] = lines[3] * (pole[0].Clas.Bonus1 + RandomD(pole[0].Clas.BonusRandomNumber));
+                }
+                else
+                if (pole[0].Rang == pole[4].Rang && pole[0].Rang == pole[8].Rang) // Случай атаки (б)
+                {
+                    double d = (pole[0].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[8].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[3] = lines[3] + (int)Math.Truncate(d);
+                }
+                else
+                    if (pole[0].Clas == pole[4].Clas && pole[0].Clas == pole[8].Clas) // Случай атаки (в)
+                {
+                    lines[3] = lines[3] * (pole[0].Clas.Bonus1 + RandomD(pole[0].Clas.BonusRandomNumber));
+                }
+
+            }// Диагональ 1 - сила
+
+            if (pole[2] != null && pole[4] != null && pole[6] != null) // вторая диагональ
+            {
+                lines[4] = pole[2].Rang.Power1 + RandomD(pole[2].Rang.PowerRandomNumber);
+                lines[4] = lines[4] + pole[4].Rang.Power1 + RandomD(pole[4].Rang.PowerRandomNumber);
+                lines[4] = lines[4] + pole[6].Rang.Power1 + RandomD(pole[6].Rang.PowerRandomNumber);
+
+                if (pole[2].Rang == pole[4].Rang && pole[2].Rang == pole[6].Rang && pole[2].Clas == pole[4].Clas && pole[2].Clas == pole[6].Clas) // случай атаки (г)
+                {
+                    double d = (pole[2].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[6].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[4] = lines[4] + (int)Math.Truncate(d);
+                    lines[4] = lines[4] * (pole[2].Clas.Bonus1 + RandomD(pole[2].Clas.BonusRandomNumber));
+                }
+                else
+                if (pole[2].Rang == pole[4].Rang && pole[2].Rang == pole[6].Rang) // Случай атаки (б)
+                {
+                    double d = (pole[2].Rang.PowerRandomNumber + pole[4].Rang.PowerRandomNumber + pole[6].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                    lines[4] = lines[4] + (int)Math.Truncate(d);
+                }
+                else
+                    if (pole[2].Clas == pole[4].Clas && pole[2].Clas == pole[6].Clas) // Случай атаки (в)
+                {
+                    lines[4] = lines[4] * (pole[2].Clas.Bonus1 + RandomD(pole[2].Clas.BonusRandomNumber));
+                }
+
+            }// Диагональ 2 - сила
+
+            for (int i = 0; i < 3; i++) // наложение бонуса силы на три первые вертикальные ряды атаки
+            {
+                int ii = 3 + i;// замена индекса 
+                int iii = 6 + i;// замена индекса 
+                if (pole[i] != null && pole[ii] != null && pole[iii] != null)
+                {
+
+                    if (pole[i].Rang == pole[ii].Rang && pole[i].Rang == pole[iii].Rang && pole[i].Clas == pole[ii].Clas && pole[i].Clas == pole[iii].Clas) // случай атаки (г)
+                    {
+                        double d = (pole[i].Rang.PowerRandomNumber + pole[ii].Rang.PowerRandomNumber + pole[iii].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                        lines[i] = lines[i] + (int)Math.Truncate(d);
+                        lines[i] = lines[i] * (pole[i].Clas.Bonus1 + RandomD(pole[i].Clas.BonusRandomNumber));
+                    }
+                    else
+                        if (pole[i].Rang == pole[ii].Rang && pole[i].Rang == pole[iii].Rang) // Случай атаки (б)
+                    {
+                        double d = (pole[i].Rang.PowerRandomNumber + pole[ii].Rang.PowerRandomNumber + pole[iii].Rang.PowerRandomNumber) / 2; // Нахождение половины максимальной силы
+                        lines[i] = lines[i] + (int)Math.Truncate(d);
+                    }
+                    else
+                        if (pole[i].Clas == pole[ii].Clas && pole[i].Clas == pole[iii].Clas) // Случай атаки (в)
+                    {
+                        lines[i] = lines[i] * (pole[i].Clas.Bonus1 + RandomD(pole[i].Clas.BonusRandomNumber));
+                    }
+
+                }
+            }// Три вертикальные атаки - сила
+            for (int i = 0; i < 5; i++) // складывание силы
+            {
+                power = power + lines[i];
+            }
+            return power;
+        }
+        public int AttackOnBoss()
+        {
+            int damage = Damage();
+            int defence = Boss.DEF;
+            int hp = Boss.HPcurrent;
+            if (damage - defence > 0)
+            {
+                Boss.HPcurrent = hp - (damage - defence);
+            }
+            if (damage - defence - hp >= 0)
+            {
+                Console.WriteLine("Victory!");
+            }
+            else
+                Console.WriteLine("No kill the boss");
+            return damage - defence - hp;
+        }
+
+
+        public static void SetShip(Ship ship, int number) // установка корабля "ship" в ячейку "number"
+        {
+
+            if (Game.Land.Pole[number] == null)
+                Game.Land.Pole[number] = ship;
+        }
+        public static void GetShip(Player player, Ship ship) // возврат корабля "ship" в резерв "player"
+        {
+            for (int i = 0; i < 11; i++)
+            {
+                if (player.Rezerv[i] == null)
+                {
+                    player.Rezerv[i] = ship;
+                    break;
+                }
+            }
+        }
+    }
+}
